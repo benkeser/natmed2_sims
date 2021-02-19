@@ -19,7 +19,7 @@ The `natmed2_sims` repository contains the code needed to reproduce the simulati
 The simulations rely on the [`natmed2`](https://github.com/benkeser/natmed2) R package, which can be downloaded and installed from GitHub as follows.
 
 ```r
-#> remotes::install_github("benkeser/natmed2")
+remotes::install_github("benkeser/natmed2")
 ```
 
 -----
