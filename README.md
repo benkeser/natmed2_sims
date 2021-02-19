@@ -10,7 +10,7 @@ Benkeser](https://davidbphd.com), Iván Díaz, Jialu Ran
 
 ## Description
 
-The `natmed2_sims` repository contains the code needed to reproduce the simulation results of the manuscript, ``Inference for natural mediation effects under case-cohort sampling with applications in identifying COVID-19 vaccine correlates of protection.''
+The `natmed2_sims` repository contains the code needed to reproduce the simulation results of the manuscript, "Inference for natural mediation effects under case-cohort sampling with applications in identifying COVID-19 vaccine correlates of protection."
 
 -----
 
@@ -18,7 +18,9 @@ The `natmed2_sims` repository contains the code needed to reproduce the simulati
 
 The simulations rely on the [`natmed2`](https://github.com/benkeser/natmed2) R package, which can be downloaded and installed from GitHub as follows.
 
+```r
 #> remotes::install_github("benkeser/natmed2")
+```
 
 -----
 
@@ -36,7 +38,7 @@ Code for the second simulation is included in the `sim2` directory, which includ
 
 ## Issues
 
-If you encounter any bugs or have any specific feature requests, please [file an issue](https://github.com/benkeser/natmed2_sim2/issues).
+If you encounter any bugs, please [file an issue](https://github.com/benkeser/natmed2_sim2/issues).
 
 -----
 
@@ -49,7 +51,7 @@ See below for details:
 
     The MIT License (MIT)
     
-    Copyright (c) 2016-2019 David C. Benkeser
+    Copyright (c) 2021- David C. Benkeser
     
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
