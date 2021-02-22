@@ -221,6 +221,7 @@ parameter_grid = expand.grid(
 library(natmed2)
 library(future)
 library(future.apply)
+library(SuperLearner)
 
 # do the simulation for row iter of parameter_grid
 result = sim_fit(size = parameter_grid$size[iter], rate = parameter_grid$rates[iter], lazy = parameter_grid$lazy[iter], version = parameter_grid$version[iter])
