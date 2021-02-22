@@ -1,17 +1,17 @@
 #!/bin/bash
 
 # when you execute this script on the cluster run this command
-# chmod u+x submit_trial.sh
-# ./submit_trial.sh sim.R simulation_run
+# chmod u+x glminter.sh
+# ./glminter.sh run_sim.R glminter
 
 ##################### Change these constants ##############################
 analysis=$2      # change for every analysis you run (2nd arg)
 maildom='@emory.edu'   # your email domain (for receiving error messages)
-myscratch="/home/jran2/vaccine/analysis/trial10_glm_inter/scratch"  # location of your persistent scratch dir
-resultdir="/home/jran2/vaccine/analysis/trial10_glm_inter/out"  # This is a folder in permanent storage
+myscratch="path/scratch"  # location of your persistent scratch dir
+resultdir="path/out"  # This is a folder in permanent storage
 script=$1      # your code as (R or Python) script (1st arg)
-max_jobs=10   # max number of jobs to run at a time
-total_jobs=10 # needs to be divisible by max_jobs
+max_jobs=5   # max number of jobs to run at a time
+total_jobs=5 # needs to be divisible by max_jobs
 ############## typically you don't have to change anything below here #######
 
 username=$(id -nu)
