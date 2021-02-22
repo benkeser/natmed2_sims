@@ -1,0 +1,31 @@
+# Code for simulation estimation
+
+[![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
+
+**Authors:** [David
+Benkeser](https://davidbphd.com), Iván Díaz, Jialu Ran
+
+-----
+
+## Description
+
+This folder contains all of the code needed to execute the simulation for producing estimation and confidence interval, plots for risk estimators, indirect effects, prop. mediated on a HPC cluster.
+- `code` contains all scripts needed to execute the simulation and format the results. 
+- `produce` contains all the scripts needed to produce the tables and plots in the paper.
+
+The simulation uses the `future` package to use multicore parallelization when executing the simulation. If parallelization is not available, the simulation code will execute sequentially. On Emory University Biostatistics and Bioinformatics HPC cluster, the simulation executed in about two minutes for glm main, 
+five minutes for glm interaction, and eight hours for Superlearner.
+-----
+
+## Dependencies
+
+To execute this code, the following `R` packages are needed:
+- [`natmed2`](https://github.com/benkeser/natmed2)
+- `future`
+- `future_apply`
+- `SuperLearner`
+- `xtable`
+
+In run_sim.R and submit.sh file, a path of the location on the cluster is also needed. The helper_fn.R should be put at the same location. A data folder needed to be created to store the data from the simulation.
+
+You will also need `pdflatex` installed in order to compile the standalone `pdf` table.

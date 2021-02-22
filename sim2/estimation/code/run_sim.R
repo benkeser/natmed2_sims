@@ -2,14 +2,20 @@
 #                               SIMULATION CODE                             #
 #############################################################################
 
-source(here::here("code", "helper_fn.R"))
+# specify the path
+path = "..."
+
+source(paste0(path, "/helper_fn.R"))
 
 # libraries
 library(natmed2)
 library(future.apply)
 
+# SuperLearner library
+SL_library =  c("SL.glm", "SL.step.interaction", "SL.mean", "SL.earth")
+
 # fitting function
-fitting = function(X, rate, lazy){
+fitting = function(X, rate, lazy, version){
   # set seed
   set.seed(X)
   # simulate data
@@ -20,19 +26,64 @@ fitting = function(X, rate, lazy){
   gRn = predict(gRn_fit)
   gRn[dat$covid == 1] = 1
   
-  fit = natmed2(
-    W = data.frame(W1 = dat$age, W2 = dat$race, W3 = dat$risk), 
-    A = dat$vax, R = dat$measure_ab, S = dat$ab, C = as.numeric(!is.na(dat$covid)), Y = dat$covid,
-    gRn = gRn,
-    glm_gC = "W1 + W2 + W3",
-    glm_gAS = "W1*S + W2 + W3",
-    glm_QY_WAS = "A + W1 + W2 + W3 + S",
-    glm_QY_WACY = "W1*W2*W3*CY11 + W1*W2*W3*CY10",
-    glm_QY_W = "W1*W2*W3",
-    glm_QY_WA = "A*W1*W2*W3",
-    glm_QD_WACY = "W1*W2*W3*CY11 + W1*W2*W3*CY10",
-    glm_QD_WACY_lazy = "W1*W2*W3*CY11 + W1*W2*W3*CY10", 
-    lazy = lazy)
+  # estimates using main-terms glm
+  if(version == "glm main"){
+    fit = natmed2(
+      W = data.frame(W1 = dat$age, W2 = dat$race, W3 = dat$risk), 
+      A = dat$vax, R = dat$measure_ab, S = dat$ab, C = as.numeric(!is.na(dat$covid)), Y = dat$covid,
+      gRn = gRn,
+      glm_gC = "W1 + W2 + W3",
+      glm_gAS = "W1 + W2 + W3 + S",
+      glm_QY_WAS = "A + W1 + W2 + W3 + S",
+      glm_QY_WACY = "W1 + W2 + W3 + CY11 + CY10",
+      glm_QY_W = "W1 + W2 + W3",
+      glm_QY_WA = "A + W1 + W2 + W3",
+      glm_QD_WACY = "W1 + W2 + W3 + CY11 + CY10",
+      glm_QD_WACY_lazy = "A + W1 + W2 + W3 + CY11 + CY10", 
+      lazy = lazy)
+  }
+  
+  # estimates using interactions glm
+  if(version == "glm inter"){
+    fit = natmed2(
+      W = data.frame(W1 = dat$age, W2 = dat$race, W3 = dat$risk), 
+      A = dat$vax, R = dat$measure_ab, S = dat$ab, C = as.numeric(!is.na(dat$covid)), Y = dat$covid,
+      gRn = gRn,
+      glm_gC = "W1 + W2 + W3",
+      glm_gAS = "W1*S + W2 + W3",
+      glm_QY_WAS = "A + W1 + W2 + W3 + S",
+      glm_QY_WACY = "W1*W2*W3*CY11 + W1*W2*W3*CY10",
+      glm_QY_W = "W1*W2*W3",
+      glm_QY_WA = "A*W1*W2*W3",
+      glm_QD_WACY = "W1*W2*W3*CY11 + W1*W2*W3*CY10",
+      glm_QD_WACY_lazy = "W1*W2*W3*CY11 + W1*W2*W3*CY10", 
+      lazy = lazy)
+  }
+  
+  if(version == "SL"){
+    fit = natmed2(
+      W = data.frame(W1 = dat$age, W2 = dat$race, W3 = dat$risk), 
+      A = dat$vax, R = dat$measure_ab, S = dat$ab, C = as.numeric(!is.na(dat$covid)), Y = dat$covid,
+      gRn = gRn,
+      glm_gA = ".",  
+      glm_gC = "1", 
+      SL_gC = NULL,
+      glm_gAS = NULL, 
+      SL_gAS = SL_library,
+      glm_QY_WAS = NULL, 
+      SL_QY_WAS = SL_library, 
+      glm_QY_WACY = NULL,
+      SL_QY_WACY = SL_library,
+      glm_QY_W = NULL,
+      SL_QY_W = SL_library, 
+      glm_QY_WA = NULL,
+      SL_QY_WA = SL_library,
+      glm_QD_WACY = NULL,
+      SL_QD_WACY = SL_library,
+      glm_QD_WACY_lazy = NULL,
+      SL_QD_WACY_lazy = SL_library,
+      lazy = lazy)
+  }
   
   if(lazy == FALSE){
     return(list(total = fit$eff[1 ,2:4], direct = fit$eff[2 ,2:4], 
@@ -46,14 +97,14 @@ fitting = function(X, rate, lazy){
 }
 
 # bias, confidence interval
-sim_fit = function(size, rate, lazy){
+sim_fit = function(size, rate, lazy, version){
   
-  plan(multisession)
+  # plan(multisession)
   # use parallel computing to get the result
-  result = future_sapply(X = 1:size, FUN = fitting, rate = rate, lazy = lazy)
+  result = future_sapply(X = 1:size, FUN = fitting, rate = rate, lazy = lazy, version = version)
   # save the result
-  setwd("path/data")
-  save(result, file = paste0("data_rate=", rate,"_lazy=", lazy, ".RData"))
+  setwd(paste0(path, "/data"))
+  save(result, file = paste0("data_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
   
   #### part I: risk estimator and coverage ####
   
@@ -90,8 +141,8 @@ sim_fit = function(size, rate, lazy){
   # bias of indirect effect
   indirects = Reduce(rbind, result[3,])
   # save the estimates
-  setwd("path/data")
-  save(indirects, file = paste0("indirects_rate=", rate,"_lazy=", lazy, ".RData"))
+  setwd(paste0(path, "/data"))
+  save(indirects, file = paste0("indirects_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
   
   # calculate bias
   indirect_avg = mean(indirects[,1], na.rm = T)
@@ -109,10 +160,10 @@ sim_fit = function(size, rate, lazy){
   totals = Reduce(rbind, result[1,])
   directs = Reduce(rbind, result[2,])
   # save the estimates
-  setwd("path/data")
-  save(directs, file = paste0("directs_rate=", rate,"_lazy=", lazy, ".RData"))
-  save(totals, file = paste0("totals_rate=", rate,"_lazy=", lazy,".RData"))
-
+  setwd(paste0(path, "/data"))
+  save(directs, file = paste0("directs_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
+  save(totals, file = paste0("totals_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
+  
   prop_med = 1 - log(directs[,1])/log(totals[,1])
   prop_med_avg = mean(prop_med, na.rm = T)
   
@@ -145,39 +196,38 @@ sim_fit = function(size, rate, lazy){
 options(echo=TRUE) 
 # import args
 args=(commandArgs(TRUE))
-print(args)
 # split and assign
 arguments = matrix(unlist(strsplit(args, '[=,]')),ncol=2,byrow = T)
-# job_control
-assign(arguments[1,1],arguments[1,2]) 
 # iter
-if(nrow(arguments) == 2){
-  assign(arguments[2,1],as.numeric(arguments[2,2]))
+if(nrow(arguments) == 1){
+  assign(arguments[1,1],as.numeric(arguments[1,2]))
 }
 
 # simulation parameters
 parameter_grid = expand.grid(
   # covid_rate value to be considered
-  rates = c(-5, -4.4, -4.1, -3.8, -3.6, -3.5, -3.3, -3.2, -3.1, -3),
+  rates = c(-5, -4.1, -3.6, -3.3, -3.1),
   # X
   size = 1000,
   # lazies
-  lazy = c(TRUE, FALSE)
+  lazy = c(TRUE, FALSE), 
+  # version
+  version = c("glm main", "glm inter", "SL")
 )
 
 # execute job ##################
-if(job_control == "run"){
-  # library
-  library(natmed2)
-  library(future)
-  library(future.apply)
-  library(SuperLearner)
-  
-  # do the simulation for row iter of parameter_grid
-  result = sim_fit(size = parameter_grid$size[iter], rate = parameter_grid$rates[iter], lazy = parameter_grid$lazy[iter])
-  
-  # save the result
-  save(result, file = paste0("path/scratch/result_size=", parameter_grid$size[iter],
-                             "_rate=", parameter_grid$rates[iter], "_lazy=", parameter_grid$lazy[iter], ".RData"))
-}
+
+# library
+library(natmed2)
+library(future)
+library(future.apply)
+
+# do the simulation for row iter of parameter_grid
+result = sim_fit(size = parameter_grid$size[iter], rate = parameter_grid$rates[iter], lazy = parameter_grid$lazy[iter], version = parameter_grid$version[iter])
+
+# save the result
+save(result, file = paste0(path, "/scratch/result_version=", parameter_grid$version[iter],
+                           "_rate=", parameter_grid$rates[iter], "_lazy=", parameter_grid$lazy[iter], ".RData"))
+
+
 
