@@ -13,8 +13,7 @@ This folder contains all of the code needed to execute the simulation for produc
 - `code` contains all scripts needed to execute the simulation and format the results. 
 - `produce` contains all the scripts needed to produce the tables and plots in the paper.
 
-The simulation uses the `future` package to use multicore parallelization when executing the simulation. If parallelization is not available, the simulation code will execute sequentially. On Emory University Biostatistics and Bioinformatics HPC cluster, the simulation executed in about two minutes for glm main, 
-five minutes for glm interaction, and eight hours for Superlearner.
+The simulation uses the `future` package to use multicore parallelization when executing the simulation. If parallelization is not available, the simulation code will execute sequentially. On Emory University Biostatistics and Bioinformatics HPC cluster, the simulation executed in about two minutes for glm main, five minutes for glm interaction, and eight hours for Superlearner.
 
 -----
 
