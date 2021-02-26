@@ -144,3 +144,85 @@ print(xtable(df, digits=c(0,1,4,4,4,4,4,4,0)), include.rownames = F,
       sanitize.colnames.function = identity,
       sanitize.text.function = identity,
       add.to.row = addtorow)
+
+#--------------------------------------
+# plot indiret effect and prop mediated
+#--------------------------------------
+
+# libraries
+library(ggplot2)
+library(ggthemes)
+library(patchwork)
+library(gridExtra)
+
+# simulation parameters
+parameter_grid = expand.grid(
+  # covid_rate value to be considered
+  rates = c(-5, -4.1, -3.6, -3.3, -3.1),
+  # version
+  version = c("glm main", "glm inter")
+)
+
+##### plot indirect effect #####
+
+# generate indirect dataframe for plot
+gen_indirect = function(data){
+  # indirect effects
+  indirects = Reduce(rbind, data[3,])
+  est = indirects[,1]
+  # calculate bias
+  indirect_avg = mean(est, na.rm = T)
+  bias_indirect = indirect_avg - truth$indirect
+  # confidence interval of indirect effect
+  # lower bound
+  cil = indirects[,2]
+  # upper bound
+  ciu = indirects[,3]
+  # coverage
+  coverage_indirect = mean((cil<truth$indirect) + (ciu>truth$indirect) - 1, na.rm = T)
+  # generate plot
+  df = data.frame(est = est, cil = cil, ciu = ciu)
+  # df = df[!is.na(ciu),]
+  index = order(df$est)
+  df = df[index,]
+  # log scale df
+  df = log(df[,1:3])
+  
+  p = ggplot(data=df, aes(x=1:nrow(df))) +
+    geom_errorbar(aes(ymax = ciu, ymin = cil), color = "#BB8FCE", alpha = 1, width = 0.1, size = 0.1) +
+    geom_point(aes(y=est), shape=20, size=0.1, color = "#BB8FCE") +
+    geom_abline(intercept=log(truth$indirect), slope=0,color="#17202A",lwd=0.5, linetype = 2) +
+    ylab("log scale range") +
+    xlab("simulation") + theme_bw() + ggtitle(paste0("indirects rate=", rate, "_bias=", round(bias_indirect,4), "_coverage=", round(coverage_indirect,4)))
+  
+  return(p)
+}
+
+# generate plots
+for(version in parameter_grid$version){
+  i = 0
+  # create two lists for storing the pics
+  p_lazy = list()
+  p_nonlazy = list()
+  for(rate in parameter_grid$rates){
+    i = i + 1
+    # get true value
+    truth = get_ows_truth2(covid_rate = rate)
+    # load the data
+    data_lazy = get(load(here::here("output",paste0("/data_version=", version,
+                                                    "_rate=", rate, "_lazy=", TRUE, ".RData"))))
+    data_nonlazy = get(load(here::here("output",paste0("/data_version=", version,
+                                                       "_rate=", rate, "_lazy=", FALSE, ".RData"))))
+    # generate plot for indirect when lazy = TRUE
+    p_lazy[[i]] = gen_indirect(data_lazy)
+    # generate dataframe for plot indirect when lazy = FALSE
+    gen_indirect(data_nonlazy)
+    p_nonlazy[[i]] = gen_indirect(data_nonlazy)
+  }
+  g = arrangeGrob(p_lazy[[1]], p_nonlazy[[1]], 
+                  p_lazy[[2]], p_nonlazy[[2]],
+                  nrow = 2, ncol = 2)
+  ggsave(filename = here::here("output", paste0("indirect_", version,".png")), g, width = 10, height = 5)
+}
+
+
