@@ -153,6 +153,7 @@ print(xtable(df, digits=c(0,1,4,4,4,4,4,4,0)), include.rownames = F,
 library(ggplot2)
 library(ggthemes)
 library(patchwork)
+library(grid)
 library(gridExtra)
 
 # simulation parameters
@@ -160,7 +161,7 @@ parameter_grid = expand.grid(
   # covid_rate value to be considered
   rates = c(-5, -4.1, -3.6, -3.3, -3.1),
   # version
-  version = c("glm main", "glm inter")
+  version = c("glm main", "glm inter", "SL")
 )
 
 ##### plot indirect effect #####
@@ -193,7 +194,7 @@ gen_indirect = function(data){
     geom_point(aes(y=est), shape=20, size=0.1, color = "#BB8FCE") +
     geom_abline(intercept=log(truth$indirect), slope=0,color="#17202A",lwd=0.5, linetype = 2) +
     ylab("log scale range") +
-    xlab("simulation") + theme_bw() + ggtitle(paste0("indirects rate=", rate, "_bias=", round(bias_indirect,4), "_coverage=", round(coverage_indirect,4)))
+    xlab("simulation") + theme_bw() + ggtitle(paste0("indirects rate=", rate, "_bias=", round(bias_indirect,4), "_coverage=", round(coverage_indirect,2)))
   
   return(p)
 }
@@ -216,13 +217,85 @@ for(version in parameter_grid$version){
     # generate plot for indirect when lazy = TRUE
     p_lazy[[i]] = gen_indirect(data_lazy)
     # generate dataframe for plot indirect when lazy = FALSE
-    gen_indirect(data_nonlazy)
     p_nonlazy[[i]] = gen_indirect(data_nonlazy)
   }
-  g = arrangeGrob(p_lazy[[1]], p_nonlazy[[1]], 
-                  p_lazy[[2]], p_nonlazy[[2]],
-                  nrow = 2, ncol = 2)
-  ggsave(filename = here::here("output", paste0("indirect_", version,".png")), g, width = 10, height = 5)
+  if(version == "glm main"){
+    g = arrangeGrob(p_lazy[[1]]+ylim(c(-100, 100)), p_nonlazy[[1]]+ylim(c(-100, 100)), 
+                    p_lazy[[2]]+ylim(c(-100, 100)), p_nonlazy[[2]]+ylim(c(-100, 100)),
+                    p_lazy[[3]]+ylim(c(-100, 100)), p_nonlazy[[3]]+ylim(c(-100, 100)),
+                    p_lazy[[4]]+ylim(c(-100, 100)), p_nonlazy[[4]]+ylim(c(-8, 8)),
+                    p_lazy[[5]]+ylim(c(-100, 100)), p_nonlazy[[5]]+ylim(c(-8, 8)),
+                    nrow = 5, ncol = 2)
+  }else if(version == "glm inter"){
+    g = arrangeGrob(p_lazy[[1]]+ylim(c(-100, 100)), p_nonlazy[[1]]+ylim(c(-100, 100)), 
+                    p_lazy[[2]]+ylim(c(-100, 100)), p_nonlazy[[2]]+ylim(c(-100, 100)),
+                    p_lazy[[3]]+ylim(c(-100, 100)), p_nonlazy[[3]]+ylim(c(-100, 100)),
+                    p_lazy[[4]]+ylim(c(-50, 50)), p_nonlazy[[4]]+ylim(c(-100, 100)),
+                    p_lazy[[5]]+ylim(c(-8, 8)), p_nonlazy[[5]]+ylim(c(-8, 8)),
+                    nrow = 5, ncol = 2)
+  }else{
+    g = arrangeGrob(p_lazy[[1]]+ylim(c(-100, 100)), p_nonlazy[[1]]+ylim(c(-100, 100)), 
+                    p_lazy[[2]]+ylim(c(-100, 100)), p_nonlazy[[2]]+ylim(c(-15, 15)),
+                    p_lazy[[3]]+ylim(c(-100, 100)), p_nonlazy[[3]]+ylim(c(-15, 15)),
+                    p_lazy[[4]]+ylim(c(-100, 100)), p_nonlazy[[4]]+ylim(c(-15, 15)),
+                    p_lazy[[5]]+ylim(c(-100, 100)), p_nonlazy[[5]]+ylim(c(-15, 15)),
+                    nrow = 5, ncol = 2)
+  }
+  ggsave(filename = here::here("output", paste0("indirect_", version,".png")), g, width = 10, height = 15)
 }
+
+## plot the inset-plot in the paper for indirect zoom-in plot(glm interaction)
+# parameters
+parameter_grid = expand.grid(
+  # covid_rate value to be considered
+  rates = c(-5, -3.1),
+  # version
+  version = c("glm inter"),
+  # value
+  value = c(TRUE, FALSE)
+)
+
+p_original = list()
+p_zoom_in = list()
+
+for(i in 1:nrow(parameter_grid)){
+  # rate
+  rate = parameter_grid$rates[i]
+  # version
+  version = parameter_grid$version[i]
+  # value
+  value = parameter_grid$value[i]
+  
+  # get true value
+  truth = get_ows_truth2(covid_rate = rate)
+  # load the data
+  data = get(load(here::here("output",paste0("/data_version=", version,
+                                             "_rate=", rate, "_lazy=", value, ".RData"))))
+  # orginal plot
+  if(rate == -5){
+    p_original[[i]] = gen_indirect(data) + ylim(c(-100, 100))
+  }else{
+    p_original[[i]] = gen_indirect(data) + ylim(c(-8, 8))
+  }
+  
+  # generate plot for indirect effect
+  p_zoom_in[[i]] = gen_indirect(data_lazy) + xlab("") + ylab("") + ggtitle("") + 
+    theme(plot.margin = unit(c(-0.4,0,-0.4,-0.4), "cm")) + ylim(c(-8, 8))
+}
+
+# combine the orginal and zoom_in plots together
+p1 = p_original[[1]] + annotation_custom(ggplotGrob(p_zoom_in[[1]]), xmin = 1, xmax = 750, 
+                                         ymin = 10, ymax = 100)
+p2 = p_original[[2]]
+p3 = p_original[[3]] + annotation_custom(ggplotGrob(p_zoom_in[[3]]), xmin = 1, xmax = 750, 
+                                         ymin = 10, ymax = 100)
+p4 = p_original[[4]]
+
+g = arrangeGrob(p1, p3,
+                p2, p4,
+                nrow = 2, ncol = 2)
+# save the plot
+ggsave(filename = here::here("output", paste0("inset_plot.png")), g, width = 10, height = 6)
+
 
 
