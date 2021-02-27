@@ -453,9 +453,3 @@ g = arrangeGrob(p1, p3,
                 nrow = 2, ncol = 2)
 # save the plot
 ggsave(filename = here::here("output", paste0("inset_plot.png")), g, width = 10, height = 6)
-
-
-
-
-
-
