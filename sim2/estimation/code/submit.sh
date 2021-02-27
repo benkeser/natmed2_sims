@@ -31,9 +31,9 @@ nloops=$((${total_jobs}/${max_jobs}-1))
 for i in $(seq 1 ${max_jobs}); do
 	echo "#!/bin/bash" >> script$i.out
 	echo "#SBATCH --nodes=1 # ask for 1 node" >> script$i.out
-	echo "#SBATCH --ntasks-per-node=10 # 4 tasks each node" >> script$i.out
+	echo "#SBATCH --ntasks-per-node=4 # 4 tasks each node" >> script$i.out
 	echo "#SBATCH --mem-per-cpu=1G" >> script$i.out
-	echo "#SBATCH --partition=guo-cbis" >> script$i.out
+	echo "#SBATCH --partition=benkeser" >> script$i.out
 	echo "#SBATCH --job-name=${analysis}$i" >> script$i.out
 	echo "#SBATCH --error=${myscratch}/err/${analysis}$i.err" >> script$i.out
 	echo "#SBATCH --output=${myscratch}/out/${analysis}$i.out" >> script$i.out
@@ -53,9 +53,9 @@ for j in $(seq 1 $nloops); do
 
 		echo "#!/bin/bash" >> script$jid.out
 		echo "#SBATCH --nodes=1 # ask for 1 node" >> script$jid.out
-		echo "#SBATCH --ntasks-per-node=10 # 4 tasks each node" >> script$jid.out
+		echo "#SBATCH --ntasks-per-node=4 # 4 tasks each node" >> script$jid.out
 		echo "#SBATCH --mem-per-cpu=1G" >> script$jid.out
-		echo "#SBATCH --partition=guo-cbis" >> script$jid.out
+		echo "#SBATCH --partition=benkeser" >> script$jid.out
 		echo "#SBATCH --job-name=${analysis}$jid" >> script$jid.out
 		echo "#SBATCH --error=${myscratch}/err/${analysis}$jid.err" >> script$jid.out
 		echo "#SBATCH --output=${myscratch}/out/${analysis}$jid.out" >> script$jid.out
