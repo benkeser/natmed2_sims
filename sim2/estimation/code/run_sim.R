@@ -103,7 +103,7 @@ sim_fit = function(size, rate, lazy, version){
   # use parallel computing to get the result
   result = future_sapply(X = 1:size, FUN = fitting, rate = rate, lazy = lazy, version = version)
   # save the result
-  setwd(paste0(path, "/data"))
+  setwd(paste0(path, "/output"))
   save(result, file = paste0("data_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
   
   #### part I: risk estimator and coverage ####
@@ -141,7 +141,7 @@ sim_fit = function(size, rate, lazy, version){
   # bias of indirect effect
   indirects = Reduce(rbind, result[3,])
   # save the estimates
-  setwd(paste0(path, "/data"))
+  setwd(paste0(path, "/output"))
   save(indirects, file = paste0("indirects_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
   
   # calculate bias
@@ -160,7 +160,7 @@ sim_fit = function(size, rate, lazy, version){
   totals = Reduce(rbind, result[1,])
   directs = Reduce(rbind, result[2,])
   # save the estimates
-  setwd(paste0(path, "/data"))
+  setwd(paste0(path, "/output"))
   save(directs, file = paste0("directs_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
   save(totals, file = paste0("totals_version=", version, "_rate=", rate,"_lazy=", lazy, ".RData"))
   

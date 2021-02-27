@@ -155,9 +155,7 @@ print(xtable(df, digits=c(0,1,4,4,4,4,4,4,4,0)), include.rownames = F,
 # libraries
 library(ggplot2)
 library(ggthemes)
-library(patchwork)
 library(grid)
-library(gridExtra)
 
 # simulation parameters
 parameter_grid = expand.grid(
