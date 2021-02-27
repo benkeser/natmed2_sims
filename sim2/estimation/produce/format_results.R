@@ -189,12 +189,13 @@ gen_indirect = function(data){
   # log scale df
   df = log(df[,1:3])
   
+  # color = #BB8FCE for a colored version
   p = ggplot(data=df, aes(x=1:nrow(df))) +
-    geom_errorbar(aes(ymax = ciu, ymin = cil), color = "#BB8FCE", alpha = 1, width = 0.1, size = 0.1) +
-    geom_point(aes(y=est), shape=20, size=0.1, color = "#BB8FCE") +
+    geom_errorbar(aes(ymax = ciu, ymin = cil), color = "#575657", alpha = 1, width = 0.1, size = 0.1) +
+    geom_point(aes(y=est), shape=20, size=0.1, color = "#575657") +
     geom_abline(intercept=log(truth$indirect), slope=0,color="#17202A",lwd=0.5, linetype = 2) +
     ylab("log scale range") +
-    xlab("simulation") + theme_bw() + ggtitle(paste0("indirects rate=", rate, "_bias=", round(bias_indirect,4), "_coverage=", round(coverage_indirect,2)))
+    xlab("simulation") + theme_bw() + ggtitle(paste0("rate=", rate, " bias=", round(bias_indirect,4), " coverage=", round(coverage_indirect,2)))
   
   return(p)
 }
