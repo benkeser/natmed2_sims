@@ -1,4 +1,4 @@
-# Code for simulation 2.1
+# Code for simulation 2 for getting true values
 
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 
@@ -26,4 +26,3 @@ To execute this code, the following `R` packages are needed:
 - `future_apply`
 - `xtable`
 
-You will also need `pdflatex` installed in order to compile the standalone `pdf` table.
