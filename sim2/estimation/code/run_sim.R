@@ -229,6 +229,3 @@ result = sim_fit(size = parameter_grid$size[iter], rate = parameter_grid$rates[i
 # save the result
 save(result, file = paste0(path, "/scratch/result_version=", parameter_grid$version[iter],
                            "_rate=", parameter_grid$rates[iter], "_lazy=", parameter_grid$lazy[iter], ".RData"))
-
-
-
