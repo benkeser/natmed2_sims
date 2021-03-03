@@ -28,6 +28,7 @@ To execute this code, the following `R` packages are needed:
 - `ggthemes`
 - `grid`
 - `xtable`
+- `extrafont`
 
 In `code` folder, a path of the location on the cluster is needed to run the run_sim.R and submit.sh file. The helper_fn.R should be put in the same folder as run_sim.R, submit.sh on the cluster. A output folder needed to be created to store the data from the simulation.
 
