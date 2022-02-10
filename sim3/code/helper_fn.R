@@ -13,7 +13,7 @@
 #' @return A data.frame with self-explanatory column names
 
 make_ows_data_survival <- function(
-  n = 40000, cens_rate = -8, covid_rate = -5,
+  n = 40000, cens_rate = -8, covid_rate = -6.5,
   study_stop = 67
 ){
   # baseline covariates
