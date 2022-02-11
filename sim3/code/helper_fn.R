@@ -88,7 +88,7 @@ make_ows_data_survival <- function(
 
 
 #' Compute the true value of four risk estimators based on the data
-#' generating process encoded by \code{make_ows_data}.
+#' generating process encoded by \code{make_ows_data_survival}.
 #' 
 #' @param n Sample size (should be very large to have accurate approximation)
 #' @param covid_rate The intercept in the outcome regression. Make larger to 
@@ -96,8 +96,7 @@ make_ows_data_survival <- function(
 #' @param t0 the time for evaluation
 #' @return the true value of four risk estimators
 get_ows_truth1_survival <- function(
-  n = 1e6, 
-  covid_rate = -9.3, 
+  n = 1e6, covid_rate = -9.3, 
   t0 = 66, study_stop = 67
 ){
   stopifnot(t0 <= study_stop)
@@ -149,6 +148,66 @@ get_ows_truth1_survival <- function(
   return(c(ey11, ey00, ey10, ey01))
 }
 
-get_ows_truth1_survival()
+#' Compute the true value of risk estimators, indirect, direct and total effect
+#' based on the data generating process encoded by \code{make_ows_data_survival}.
+#' 
+#' @param n Sample size (should be very large to have accurate approximation)
+#' @param covid_rate The intercept in the outcome regression. Make larger to 
+#' add more events to mimic what might happen with further follow-up time
+#' @param t0 the time for evaluation
+#' @param return a list of the targeted results
+get_ows_truth2 <- function(n = 1e6, covid_rate = -9.3, 
+                           t0 = 66, study_stop = 67){
+  stopifnot(t0 <= study_stop)
+  
+  # baseline covariates
+  age <- rbinom(n, 1, 0.4)
+  race <- rbinom(n, 1, 0.25)
+  risk <- rbinom(n, 1, 0.25)
+  
+  # vaccine distribution
+  vax <- rbinom(n, 1, 0.5)
+  
+  # probability of getting 0 immune response among participants
+  ab_prob <- plogis(2 - 3 * age)
+  ab_binom <- rbinom(n, 1, ab_prob)
+  # generate continuous nonzero immune marker truncated at 0
+  mean_ab_vax_cov <- 3 - 0.5 * age
+  sd_ab_vax_cov <- 1
+  ab = numeric(n)
+  ab[ab_binom == 1] <- rnorm(sum(ab_binom==1), mean = mean_ab_vax_cov, sd = sd_ab_vax_cov)
+  ab[vax == 0] <- 0
+  ab[vax == 1 & ab < 0] <- 0
+  
+  # immune response if everyone is not vaccinated
+  ab_vax_0 <- rep(0, n)
+  # immune response if everyone get vaccinated
+  ab_vax_1 <- numeric(n)
+  ab_vax_1[ab_binom == 1] <- rnorm(sum(ab_binom==1), mean = mean_ab_vax_cov, sd = sd_ab_vax_cov)
+  ab_vax_1[ab_vax_1 < 0] <- 0
+  
+  # compute hazard function of covid infection
+  # haz_covid_vax_ab_cov <- plogis(covid_rate - 0.5 * ab - 0.5 * vax + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax0_ab0_cov <- plogis(covid_rate - 0.5 * 0 - 0.5 * 0 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax1_ab0_cov <- plogis(covid_rate - 0.5 * 0 - 0.5 * 1 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax0_ab1_cov <- plogis(covid_rate - 0.5 * ab_vax_1 - 0.5 * 0 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax1_ab1_cov <- plogis(covid_rate - 0.5 * ab_vax_1 - 0.5 * 1 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  
+  # compute time to covid infection
+  time_to_covid_vax0_ab0 <- rgeom(n, haz_covid_vax0_ab0_cov) + 1
+  time_to_covid_vax1_ab0 <- rgeom(n, haz_covid_vax1_ab0_cov) + 1
+  time_to_covid_vax0_ab1 <- rgeom(n, haz_covid_vax0_ab1_cov) + 1
+  time_to_covid_vax1_ab1 <- rgeom(n, haz_covid_vax1_ab1_cov) + 1
+  
+  ey11 <- mean(time_to_covid_vax1_ab1 <= t0)
+  ey10 <- mean(time_to_covid_vax1_ab0 <= t0)
+  ey01 <- mean(time_to_covid_vax0_ab1 <= t0)
+  ey00 <- mean(time_to_covid_vax0_ab0 <= t0)
+  
+  return(list(risk = c(ey11, ey10, ey00),
+              indirect = ey11 / ey10, 
+              direct = ey10 / ey00,
+              total = ey11 / ey00))
+}
 
 
