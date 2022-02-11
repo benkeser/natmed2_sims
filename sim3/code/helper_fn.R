@@ -13,7 +13,7 @@
 #' @return A data.frame with self-explanatory column names
 
 make_ows_data_survival <- function(
-  n = 40000, cens_rate = -8, covid_rate = -6.5,
+  n = 40000, cens_rate = -8, covid_rate = -9.3,
   study_stop = 67
 ){
   # baseline covariates
@@ -36,7 +36,7 @@ make_ows_data_survival <- function(
   ab[vax == 1 & ab < 0] <- 0
   
   # hazard function of getting infected
-  haz_covid_vax_ab_cov <- plogis(covid_rate - 4 * ab - 2.2 * vax + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax_ab_cov <- plogis(covid_rate - 0.5 * ab - 0.5 * vax + 0.5 * risk + 0.5 * age + 0.1 * race)
   # time to covid infection
   time_to_covid <- rgeom(n, haz_covid_vax_ab_cov) + 1
 
@@ -97,7 +97,7 @@ make_ows_data_survival <- function(
 #' @return the true value of four risk estimators
 get_ows_truth1_survival <- function(
   n = 1e6, 
-  covid_rate = -6.5, 
+  covid_rate = -9.3, 
   t0 = 66, study_stop = 67
 ){
   stopifnot(t0 <= study_stop)
@@ -129,11 +129,11 @@ get_ows_truth1_survival <- function(
   ab_vax_1[ab_vax_1 < 0] <- 0
   
   # compute hazard function of covid infection
-  # haz_covid_vax_ab_cov <- plogis(covid_rate - 4 * ab - 2.2 * vax + 0.5 * risk + 0.5 * age + 0.1 * race)
-  haz_covid_vax0_ab0_cov <- plogis(covid_rate - 4 * 0 - 2.2 * 0 + 0.5 * risk + 0.5 * age + 0.1 * race)
-  haz_covid_vax1_ab0_cov <- plogis(covid_rate - 4 * 0 - 2.2 * 1 + 0.5 * risk + 0.5 * age + 0.1 * race)
-  haz_covid_vax0_ab1_cov <- plogis(covid_rate - 4 * ab_vax_1 - 2.2 * 0 + 0.5 * risk + 0.5 * age + 0.1 * race)
-  haz_covid_vax1_ab1_cov <- plogis(covid_rate - 4 * ab_vax_1 - 2.2 * 1 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  # haz_covid_vax_ab_cov <- plogis(covid_rate - 0.5 * ab - 0.5 * vax + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax0_ab0_cov <- plogis(covid_rate - 0.5 * 0 - 0.5 * 0 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax1_ab0_cov <- plogis(covid_rate - 0.5 * 0 - 0.5 * 1 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax0_ab1_cov <- plogis(covid_rate - 0.5 * ab_vax_1 - 0.5 * 0 + 0.5 * risk + 0.5 * age + 0.1 * race)
+  haz_covid_vax1_ab1_cov <- plogis(covid_rate - 0.5 * ab_vax_1 - 0.5 * 1 + 0.5 * risk + 0.5 * age + 0.1 * race)
   
   # compute time to covid infection
   time_to_covid_vax0_ab0 <- rgeom(n, haz_covid_vax0_ab0_cov) + 1
@@ -149,14 +149,6 @@ get_ows_truth1_survival <- function(
   return(c(ey11, ey00, ey10, ey01))
 }
 
+get_ows_truth1_survival()
 
 
-
-covid_rate_choices = seq(-10, -1, by = 1)
-parm_ab_choices = seq(-6, -0.1, by = 0.1)
-parm_vax_choices = seq(-6, -0.1, by = 0.1)
-for(parm_ab in parm_ab_choices){
-  for(parm_vax in parm_vax_choices){
-    
-  } 
-}
