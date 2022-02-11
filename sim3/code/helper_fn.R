@@ -11,7 +11,6 @@
 #' add more events to mimic what might happen with further follow-up time
 #' @study_stop The stop date of the study
 #' @return A data.frame with self-explanatory column names
-
 make_ows_data_survival <- function(
   n = 40000, cens_rate = -8, covid_rate = -9.3,
   study_stop = 67
