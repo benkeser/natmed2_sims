@@ -155,7 +155,7 @@ get_ows_truth1_survival <- function(
 #' add more events to mimic what might happen with further follow-up time
 #' @param t0 the time for evaluation
 #' @param return a list of the targeted results
-get_ows_truth2 <- function(n = 1e6, covid_rate = -9.3, 
+get_ows_truth2_survival <- function(n = 1e6, covid_rate = -9.3, 
                            t0 = 66, study_stop = 67){
   stopifnot(t0 <= study_stop)
   
@@ -207,6 +207,41 @@ get_ows_truth2 <- function(n = 1e6, covid_rate = -9.3,
               indirect = ey11 / ey10, 
               direct = ey10 / ey00,
               total = ey11 / ey00))
+}
+
+#' Output total, in/direct effects, CI's based on fitted results
+#' @normal_survtmle_fit fitted object for estimating the total effect
+#' @mediation_survtmle_fit fitted object for estimating mediation parameters
+compute_mediation_params <- function(
+  normal_survtmle_fit,
+  mediation_survtmle_fit,
+  ...
+){
+  # combine influence functions (ey00, ey11, ey10)
+  all_ic <- cbind(normal_survtmle_fit$ic, mediation_survtmle_fit$ic)
+  # estimates
+  est <- c(normal_survtmle_fit$est[,1], mediation_survtmle_fit$est[,1])
+  # covariance matrix
+  cov_mat <- cov(all_ic) / dim(all_ic)[1]
+  # delta method
+  A <- matrix(c(
+    -1 / est[1], 1 / est[2],     0      , 
+    0       , 1 / est[2], -1 / est[3],
+    -1 / est[1],      0    ,  1 / est[3]
+  ), nrow = 3, ncol = 3, byrow = TRUE)
+  
+  log_total_eff <- log(est[2] / est[1])
+  log_indirect_eff <- log(est[2] / est[3])
+  log_direct_eff <- log(est[3] / est[1])
+  log_effs <- c(log_total_eff, log_indirect_eff, log_direct_eff)
+  ses_log_eff <- sqrt(diag(A %*% cov_mat %*% t(A)))
+  
+  cils <- exp(log_effs - 1.96 * ses_log_eff)
+  cius <- exp(log_effs + 1.96 * ses_log_eff)
+  out <- data.frame(est = exp(log_effs), cil = cils, ciu = cius)
+  row.names(out) <- c("Total", "Indirect", "Direct")
+  
+  return(out)
 }
 
 
