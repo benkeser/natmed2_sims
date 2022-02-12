@@ -10,8 +10,8 @@ maildom='@emory.edu'   # your email domain (for receiving error messages)
 myscratch="/home/jran2/vaccine/JnJ/scratch"  # location of your persistent scratch dir
 resultdir="/home/jran2/vaccine/JnJ/scratch/out"  # This is a folder in permanent storage
 script=$1      # your code as (R or Python) script (1st arg)
-max_jobs=20    # max number of jobs to run at a time
-total_jobs=20   # total number of jobs
+max_jobs=2000    # max number of jobs to run at a time
+total_jobs=2000   # total number of jobs
 ############## typically you don't have to change anything below here #######
 
 username=$(id -nu)
@@ -30,9 +30,9 @@ nloops=$((${total_jobs}/${max_jobs}-1))
 # submit first batch of jobs
 for i in $(seq 1 ${max_jobs}); do
 	echo "#!/bin/bash" >> script$i.sh
-	echo "#SBATCH --nodes=1 # ask for 1 node" >> script$i.sh
-	echo "#SBATCH --ntasks-per-node=2 # 4 tasks each node" >> script$i.sh
-	echo "#SBATCH --mem-per-cpu=10G" >> script$i.sh
+#	echo "#SBATCH --nodes=1 # ask for 1 node" >> script$i.sh
+#	echo "#SBATCH --ntasks-per-node=1 # 1 task each node" >> script$i.sh
+#	echo "#SBATCH --mem-per-cpu=10G" >> script$i.sh
 	echo "#SBATCH --partition=preemptable" >> script$i.sh
 	echo "#SBATCH --job-name=${analysis}$i" >> script$i.sh
 	echo "#SBATCH --error=${myscratch}/err/${analysis}$i.err" >> script$i.sh
@@ -57,9 +57,9 @@ for j in $(seq 1 $nloops); do
 		jid=$(($j*${max_jobs}+$i))
 
 		echo "#!/bin/bash" >> script$jid.sh
-		echo "#SBATCH --nodes=1 # ask for 1 node" >> script$jid.sh
-		echo "#SBATCH --ntasks-per-node=2 # 4 tasks each node" >> script$jid.sh
-		echo "#SBATCH --mem-per-cpu=10G" >> script$jid.sh
+#		echo "#SBATCH --nodes=1 # ask for 1 node" >> script$jid.sh
+#		echo "#SBATCH --ntasks-per-node=1 # 1 task each node" >> script$jid.sh
+#		echo "#SBATCH --mem-per-cpu=10G" >> script$jid.sh
 		echo "#SBATCH --partition=preemptable" >> script$jid.sh
 		echo "#SBATCH --job-name=${analysis}$jid" >> script$jid.sh
 		echo "#SBATCH --error=${myscratch}/err/${analysis}$jid.err" >> script$jid.sh
