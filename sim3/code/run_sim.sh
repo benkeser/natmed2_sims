@@ -10,7 +10,7 @@ maildom='@emory.edu'   # your email domain (for receiving error messages)
 myscratch="/home/jran2/vaccine/JnJ/scratch"  # location of your persistent scratch dir
 resultdir="/home/jran2/vaccine/JnJ/scratch/out"  # This is a folder in permanent storage
 script=$1      # your code as (R or Python) script (1st arg)
-max_jobs=2000    # max number of jobs to run at a time
+max_jobs=100    # max number of jobs to run at a time
 total_jobs=2000   # total number of jobs
 ############## typically you don't have to change anything below here #######
 

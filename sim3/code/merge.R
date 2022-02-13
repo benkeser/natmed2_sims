@@ -10,7 +10,7 @@ parameter_grid_merge = expand.grid(
   # covid_rate value to be considered
   # covid_rate = c(-10, -8, 0.1),
   # t0
-  set_t0 = seq(1, 66, 1),
+  set_t0 = 65,
   # study_stop
   # study_stop = 67,
   # seed
