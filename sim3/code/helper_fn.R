@@ -49,8 +49,8 @@ make_ows_data_survival <- function(
   # observed indicator
   observed_covid_ind <- as.numeric(observed_ftime == time_to_covid)
   # add censoring due to study stop
-  observed_ftime[observed_ftime > study_stop] <- study_stop
   observed_covid_ind[observed_ftime > study_stop] <- 0
+  observed_ftime[observed_ftime > study_stop] <- study_stop
 
   # ows sampling design
   strata_matrix <- expand.grid(age = c(0,1), race = c(0,1), risk = c(0,1))
@@ -245,3 +245,38 @@ compute_mediation_params <- function(
 }
 
 
+SL.myglm <- function (Y, X, newX, family, obsWeights, model = TRUE, ...) 
+{
+    if (is.matrix(X)) {
+        X = as.data.frame(X)
+    }
+    fit.glm <- glm(Y ~ trt + age + race + risk + ab, 
+                   data = X, family = family, weights = obsWeights, 
+                   model = model)
+    if (is.matrix(newX)) {
+        newX = as.data.frame(newX)
+    }
+    pred <- predict(fit.glm, newdata = newX, type = "response")
+    fit <- list(object = fit.glm)
+    class(fit) <- "SL.glm"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}
+
+SL.myglm_noab <- function (Y, X, newX, family, obsWeights, model = TRUE, ...) 
+{
+    if (is.matrix(X)) {
+        X = as.data.frame(X)
+    }
+    fit.glm <- glm(Y ~ trt + age + race + risk, 
+                   data = X, family = family, weights = obsWeights, 
+                   model = model)
+    if (is.matrix(newX)) {
+        newX = as.data.frame(newX)
+    }
+    pred <- predict(fit.glm, newdata = newX, type = "response")
+    fit <- list(object = fit.glm)
+    class(fit) <- "SL.glm"
+    out <- list(pred = pred, fit = fit)
+    return(out)
+}

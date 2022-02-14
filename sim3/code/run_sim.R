@@ -15,7 +15,9 @@ library(survtmle)
 library(SuperLearner)
 
 # SuperLearner library
-SL_library <-  c("SL.glm", "SL.step.interaction", "SL.mean", "SL.earth")
+SL_library_ftime_ab <-  c("SL.glm", "SL.mean", "SL.earth", "SL.myglm")
+SL_library_ftime <-  c("SL.glm", "SL.mean", "SL.earth", "SL.myglm_noab")
+SL_library_other <- c("SL.glm", "SL.mean", "SL.earth", "SL.ranger")
 
 # fitting function
 fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
@@ -74,8 +76,8 @@ fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
       adjustVars = data[ , c("age", "race", "risk")],
       t0 = set_t0,
       glm.ctime = "age + race + risk",
-      SL.ftime = SL_library,
-      cvControl = list()
+      SL.ftime = SL_library_ftime,
+      cvControl = list(V = 2)
     )
     
     # estimate mediation parameters
@@ -91,10 +93,10 @@ fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
       mediatorInCensMod = FALSE,
       t0 = set_t0,
       glm.ctime = "age + race + risk",
-      SL.ftime = SL_library,
+      SL.ftime = SL_library_ftime_ab,
       glm.mediator = "age*race*risk",
-      SL.trtMediator = SL_library,
-      SL.eif = SL_library,
+      SL.trtMediator = SL_library_other,
+      SL.eif = SL_library_other,
       cvControl = list()
     )
   }
