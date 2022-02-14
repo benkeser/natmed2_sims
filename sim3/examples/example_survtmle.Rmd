@@ -45,7 +45,7 @@ fit1 <- survtmle::hazard_tmle(
   adjustVars = data[ , c("age", "race", "risk")],
   t0 = set_t0,
   glm.ctime = "age + race + risk",
-  glm.ftime = "trt + age + race + risk"
+  glm.ftime = "trt + age + race + risk" # might be misspecified, more flexible: SL ...
 )
 ```
 
