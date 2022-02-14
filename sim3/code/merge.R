@@ -21,12 +21,11 @@ parameter_grid_merge = expand.grid(
 
 # calculate bias and coverage of estimated total, in/direct effect and proportion mediated
 for(set_t0 in parameter_grid_merge$set_t0){
+  # get truth
+  truth = get_ows_truth2_survival(t0 = set_t0)
+  # total, indirect, direct effect
+  true_effects = c(truth$total, truth$indirect, truth$direct)
   for(version in parameter_grid_merge$version){
-    # get truth
-    truth = get_ows_truth2_survival(t0 = set_t0)
-    # total, indirect, direct effect
-    true_effects = c(truth$total, truth$indirect, truth$direct)
-    
     # combine estimated effect results together
     # total, indirect, direct effect
     pt_est_matrix = matrix(nrow = 0, ncol = 3)
@@ -66,3 +65,6 @@ for(set_t0 in parameter_grid_merge$set_t0){
   
   save(out, file = paste0("/home/jran2/vaccine/JnJ/final_result/result_t", set_t0, "_version_", version, ".RData"))
 }
+
+
+
