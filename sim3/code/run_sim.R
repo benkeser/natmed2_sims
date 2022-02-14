@@ -97,7 +97,7 @@ fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
       glm.mediator = "age*race*risk",
       SL.trtMediator = SL_library_other,
       SL.eif = SL_library_other,
-      cvControl = list()
+      cvControl = list(V = 2)
     )
   }
   
