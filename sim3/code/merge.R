@@ -44,7 +44,7 @@ for(set_t0 in parameter_grid_merge$set_t0){
     }
 
     # average over simulations 
-    pt_est_avg = colMeans(pt_est_matrix)
+    pt_est_avg = apply(pt_est_matrix, MARGIN = 2, median)
     # calculate bias
     bias = pt_est_avg - true_effects
     
@@ -56,14 +56,16 @@ for(set_t0 in parameter_grid_merge$set_t0){
     # calculate the mean coverage rate for estimators
     # highest value 1(best); lowest value -1(worst)
     coverage = colMeans(cil_less_than_truth + ciu_greater_than_truth - 1)
+    
+    # bias and coverage 
+    # total, indirect, direct effect
+    out = list(true_effects = true_effects,
+               pt_est_avg = pt_est_avg,
+               bias = bias,
+               coverage = coverage)
+    
+    save(out, file = paste0("/home/jran2/vaccine/JnJ/final_result/result_t", set_t0, "_version_", version, ".RData"))
   }
-  
-  # bias and coverage 
-  # total, indirect, direct effect
-  out = list(bias = bias,
-             coverage = coverage)
-  
-  save(out, file = paste0("/home/jran2/vaccine/JnJ/final_result/result_t", set_t0, "_version_", version, ".RData"))
 }
 
 
