@@ -239,7 +239,18 @@ compute_mediation_params <- function(
   cils <- exp(log_effs - 1.96 * ses_log_eff)
   cius <- exp(log_effs + 1.96 * ses_log_eff)
   out <- data.frame(est = exp(log_effs), cil = cils, ciu = cius)
-  row.names(out) <- c("Total", "Indirect", "Direct")
+  
+  # estimation of proportional mediated
+  prop_med <- 1 - log_direct_eff/log_total_eff
+  g <- matrix(c(log_indirect_eff/log_total_eff^2*1/est[1],
+                log_direct_eff/log_total_eff^2*1/est[2],
+               -1/(est[3]*log_total_eff)), ncol = 3, byrow = T)
+  ses_prop_med <- sqrt(g %*% cov_mat %*% t(g))
+  cil_prop <- prop_med - 1.96*ses_prop_med
+  ciu_prop <- prop_med + 1.96*ses_prop_med
+  
+  out <- rbind(out, c(prop_med, cil_prop, ciu_prop))
+  row.names(out) <- c("Total", "Indirect", "Direct", "Prop_med")
   
   return(out)
 }

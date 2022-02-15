@@ -23,14 +23,14 @@ parameter_grid_merge = expand.grid(
 for(set_t0 in parameter_grid_merge$set_t0){
   # get truth
   truth = get_ows_truth2_survival(t0 = set_t0)
-  # total, indirect, direct effect
-  true_effects = c(truth$total, truth$indirect, truth$direct)
+  # total, indirect, direct effect, proportion mediated
+  true_effects = c(truth$total, truth$indirect, truth$direct, 1 - log(truth$direct)/log(truth$total))
   for(version in parameter_grid_merge$version){
     # combine estimated effect results together
-    # total, indirect, direct effect
-    pt_est_matrix = matrix(nrow = 0, ncol = 3)
-    cil_matrix = matrix(nrow = 0, ncol = 3)
-    ciu_matrix = matrix(nrow = 0, ncol = 3)
+    # total, indirect, direct effect, proportion mediated
+    pt_est_matrix = matrix(nrow = 0, ncol = 4)
+    cil_matrix = matrix(nrow = 0, ncol = 4)
+    ciu_matrix = matrix(nrow = 0, ncol = 4)
     # read in simulation results
     for(X in 1:1000){
       filename = paste0("X", X, "_t", set_t0, "_version_", version, ".RData")
