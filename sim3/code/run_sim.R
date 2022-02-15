@@ -42,6 +42,7 @@ fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
       trt = data$vax,
       adjustVars = data[ , c("age", "race", "risk")],
       t0 = set_t0,
+      glm.trt = "age + race + risk",
       glm.ctime = "age + race + risk",
       glm.ftime = "trt + age + race + risk"
     )
@@ -58,6 +59,7 @@ fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
       mediatorSampProb = samp_prob,
       mediatorInCensMod = FALSE,
       t0 = set_t0,
+      glm.trt = "age + race + risk",      
       glm.ctime = "age + race + risk",
       glm.ftime = "trt + age + race + risk + ab",
       glm.mediator = "age*race*risk",
@@ -75,6 +77,7 @@ fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
       trt = data$vax,
       adjustVars = data[ , c("age", "race", "risk")],
       t0 = set_t0,
+      glm.trt = "age + race + risk",
       glm.ctime = "age + race + risk",
       SL.ftime = SL_library_ftime,
       cvControl = list(V = 2),
