@@ -223,6 +223,13 @@ compute_mediation_params <- function(
   est <- c(normal_survtmle_fit$est[,1], mediation_survtmle_fit$est[,1])
   # covariance matrix
   cov_mat <- cov(all_ic) / dim(all_ic)[1]
+  
+  # confidence intervals of estimators
+  est_cils <- est - 1.96*diag(cov_mat)
+  est_cius <- est + 1.96*diag(cov_mat)
+  out_est <- data.frame(est = est, cil = est_cils, ciu = est_cius)
+  row.names(out_est) <- c("ey00", "ey11", "ey10")
+  
   # delta method
   A <- matrix(c(
     -1 / est[1], 1 / est[2],     0      , 
@@ -238,7 +245,7 @@ compute_mediation_params <- function(
   
   cils <- exp(log_effs - 1.96 * ses_log_eff)
   cius <- exp(log_effs + 1.96 * ses_log_eff)
-  out <- data.frame(est = exp(log_effs), cil = cils, ciu = cius)
+  out_eff <- data.frame(est = exp(log_effs), cil = cils, ciu = cius)
   
   # estimation of proportional mediated
   prop_med <- 1 - log_direct_eff/log_total_eff
@@ -249,10 +256,11 @@ compute_mediation_params <- function(
   cil_prop <- prop_med - 1.96*ses_prop_med
   ciu_prop <- prop_med + 1.96*ses_prop_med
   
-  out <- rbind(out, c(prop_med, cil_prop, ciu_prop))
-  row.names(out) <- c("Total", "Indirect", "Direct", "Prop_med")
+  out_eff <- rbind(out_eff, c(prop_med, cil_prop, ciu_prop))
+  row.names(out_eff) <- c("Total", "Indirect", "Direct", "Prop_med")
   
-  return(out)
+  return(list(out_est = out_est,
+              out_eff = out_eff))
 }
 
 
