@@ -225,8 +225,8 @@ compute_mediation_params <- function(
   cov_mat <- cov(all_ic) / dim(all_ic)[1]
   
   # confidence intervals of estimators
-  est_cils <- est - 1.96*diag(cov_mat)
-  est_cius <- est + 1.96*diag(cov_mat)
+  est_cils <- est - 1.96*sqrt(diag(cov_mat))
+  est_cius <- est + 1.96*sqrt(diag(cov_mat))
   out_est <- data.frame(est = est, cil = est_cils, ciu = est_cius)
   row.names(out_est) <- c("ey00", "ey11", "ey10")
   

@@ -28,7 +28,7 @@ for(set_t0 in parameter_grid_merge$set_t0){
   # get truth of estimated effects
   truth_eff = get_ows_truth2_survival(t0 = set_t0)
   # total, indirect, direct effect, proportion mediated
-  true_effects = c(truth$total, truth$indirect, truth$direct, 1 - log(truth$direct)/log(truth$total))
+  true_effects = c(truth_eff$total, truth_eff$indirect, truth_eff$direct, 1 - log(truth_eff$direct)/log(truth_eff$total))
   
   for(version in parameter_grid_merge$version){
     # combine estimated cumulative incidence parameters together
@@ -42,6 +42,7 @@ for(set_t0 in parameter_grid_merge$set_t0){
     ciu_eff_matrix = matrix(nrow = 0, ncol = 4)
     # read in simulation results
     for(X in 1:1000){
+      print(X)
       filename = paste0("X", X, "_t", set_t0, "_version_", version, ".RData")
       if(file.exists(filename)){
         load(filename)
@@ -85,12 +86,12 @@ for(set_t0 in parameter_grid_merge$set_t0){
     # bias and coverage 
     # total, indirect, direct effect
     out = list(truth_est = truth_est,
-               true_effects = true_effects,
                pt_est_avg = pt_est_avg,
-               pt_eff_avg = pt_eff_avg,
                bias_est = bias_est,
-               bias_eff = bias_eff,
                coverage_est = coverage_est,
+               true_effects = true_effects,
+               pt_eff_avg = pt_eff_avg,
+               bias_eff = bias_eff,
                coverage_eff = coverage_eff)
     
     save(out, file = paste0("/home/jran2/vaccine/JnJ/final_result/result_t", set_t0, "_version_", version, ".RData"))
