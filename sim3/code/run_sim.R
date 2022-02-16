@@ -26,6 +26,8 @@ fitting = function(X, cens_rate, covid_rate, set_t0, study_stop, version){
   # simulate data
   data <- make_ows_data_survival(cens_rate = cens_rate, covid_rate = covid_rate, study_stop = study_stop)
   # data <- make_ows_data_survival(n = 1000, cens_rate = cens_rate, covid_rate = covid_rate, study_stop = study_stop)
+  # save dataset
+  save(data, file = paste0("/projects/dbenkes/jialu/JnJ_datasets/data_", X, ".RData"))
   
   # get sampling probabilities
   glm_fit <- glm(random_subcohort ~ age*race*risk*vax,
